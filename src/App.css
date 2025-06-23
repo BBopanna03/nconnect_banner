@@ -1,0 +1,17 @@
+#root {
+  width: 100%;
+  margin: 0 auto;
+  text-align: left;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background-color: #0A0A1E;
+}
+
+/* Certificate image styles */
+.photo-overlay img {
+  background-color: transparent;
+}
