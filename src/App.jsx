@@ -115,15 +115,17 @@ function App() {
 
   return (
     <Box sx={{
+      width: '100%',
+      margin: '0 auto',
       height: '100vh',
       backgroundColor: '#0A0A1E',
       color: 'white',
-      display: 'flex',
+      alignItems: 'center',
       overflow: 'hidden',
-      position: 'relative'
+      position: 'relative',
     }}>
-      <Box sx={{ position: 'relative', zIndex: 1, width: '100%' }}>
-        <Grid container columns={12} sx={{ height: '100vh', maxWidth: '1600px', margin: '0 auto' }}>
+      <Box sx={{ position: 'relative', zIndex: 1,display: 'flex', justifyContent:'center',alignItems:'center' }}>
+        <Grid container columns={12} sx={{ height: '100vh', margin: '0 auto' }}>
           {/* Left Column */}
           <Grid sx={{
             gridColumn: { xs: 'span 12', md: 'span 6' },
@@ -132,20 +134,31 @@ function App() {
             p: 4,
             borderRight: '1px solid rgba(255,255,255,0.1)',
             display: 'flex',
-            flexDirection: 'column'
+            flexDirection: 'column',
+            alignItems: 'center'
           }}>
-            <Box sx={{ mb: 6, mt: 2 }}>
+            <Box sx={{
+              mb: 6,
+              mt: 2,
+              width: '100%',
+              maxWidth: '450px',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center'
+            }}>
               <Typography variant="h4" sx={{
                 mb: 1,
                 fontWeight: 500,
-                fontSize: '2rem'
+                fontSize: '2rem',
+                textAlign: 'center'
               }}>
                 Upload Your Photo
               </Typography>
               <Typography variant="body1" sx={{
                 color: 'rgba(255,255,255,0.7)',
                 mb: 4,
-                fontSize: '1rem'
+                fontSize: '1rem',
+                textAlign: 'center'
               }}>
                 Start by adding your professional photo
               </Typography>
@@ -199,18 +212,24 @@ function App() {
                 <Typography sx={{
                   fontSize: '1rem',
                   fontWeight: 500,
-                  color: 'white'
+                  color: 'white',
+                  textAlign: 'center'
                 }}>
                   Click to upload
                 </Typography>
               </Box>
             </Box>
 
-            <Box sx={{ mt: 8 }}>
+            <Box sx={{
+              mt: 8,
+              width: '100%',
+              maxWidth: '450px'
+            }}>
               <Typography variant="h5" sx={{
                 mb: 4,
                 fontSize: '1.5rem',
-                fontWeight: 500
+                fontWeight: 500,
+                textAlign: 'center'
               }}>
                 Next Steps
               </Typography>
@@ -223,6 +242,7 @@ function App() {
                   display: 'flex',
                   alignItems: 'center',
                   cursor: 'pointer',
+                  width: '100%',
                   '&:hover': {
                     backgroundColor: '#23234A',
                   }
@@ -243,7 +263,7 @@ function App() {
                 >
                   <FileDownloadIcon />
                 </Box>
-                <Box>
+                <Box textAlign="center">
                   <Typography variant="subtitle1">Download Banner</Typography>
                   <Typography variant="body2" sx={{ color: '#888' }}>
                     Save your professional banner
@@ -260,14 +280,15 @@ function App() {
             display: 'flex',
             flexDirection: 'column',
             p: 4,
-            alignItems: 'center'
+            alignItems: 'center',
+            justifyContent: 'center'
           }}>
             {/* Zoom Controls */}
-            <Stack direction="row" spacing={2} justifyContent="center" alignItems="center">
+            <Stack direction="row" spacing={2} justifyContent="center" alignItems="center" sx={{ mb: 2 }}>
               <IconButton onClick={handleZoomOut} sx={{ color: 'white' }}>
                 <ZoomOutIcon />
               </IconButton>
-              <Typography sx={{ color: 'white' }}>
+              <Typography sx={{ color: 'white', minWidth: '60px', textAlign: 'center' }}>
                 {Math.round(zoom * 100)}%
               </Typography>
               <IconButton onClick={handleZoomIn} sx={{ color: 'white' }}>
@@ -352,79 +373,79 @@ function App() {
                     />
                   </div>
                 )}
-               </Box>
+              </Box>
             </Box>
           </Grid>
         </Grid>
 
         <Modal open={cropModalOpen} onClose={() => setCropModalOpen(false)}>
-  <Box sx={{
-    position: 'absolute',
-    top: '50%',
-    left: '50%',
-    transform: 'translate(-50%, -50%)',
-    width: ovalFrame.width + 40,
-    bgcolor: 'background.paper',
-    boxShadow: 24,
-    p: 3,
-    borderRadius: 2,
-    outline: 'none',
-  }}>
-    <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
-      Crop your photo
-    </Typography>
-    <Box sx={{ position: 'relative', width: ovalFrame.width, height: ovalFrame.height, bgcolor: '#222', mx: 'auto', textAlign: 'center' }}>
-      {selectedImage && (
-        <Cropper
-          image={selectedImage}
-          crop={crop}
-          zoom={cropZoom}
-          aspect={ovalFrame.width / ovalFrame.height}
-          cropSize={ovalFrame}
-          onCropChange={setCrop}
-          onZoomChange={setCropZoom}
-          onCropComplete={onCropComplete}
-          showGrid={false}
-          restrictPosition={false}
-        />
-      )}
-      {/* Oval outline overlay */}
-      <Box
-        sx={{
-          pointerEvents: 'none',
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: ovalFrame.width,
-          height: ovalFrame.height,
-          borderRadius: '50%',
-          border: '3px solid #fff',
-          boxSizing: 'border-box',
-          zIndex: 10,
-          mx: 'auto'
-        }}
-      />
-    </Box>
-    <Box sx={{ mt: 2 }}>
-      <Typography gutterBottom>Zoom</Typography>
-      <Slider
-        value={cropZoom}
-        min={1}
-        max={3}
-        step={0.01}
-        onChange={(_, value) => setCropZoom(value)}
-      />
-    </Box>
-    <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
-      <Button variant="outlined" color="secondary" onClick={() => setCropModalOpen(false)}>
-        Cancel
-      </Button>
-      <Button variant="contained" color="primary" onClick={handleCropSave}>
-        Crop & Save
-      </Button>
-    </Stack>
-  </Box>
-</Modal>
+          <Box sx={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            width: ovalFrame.width + 40,
+            bgcolor: 'background.paper',
+            boxShadow: 24,
+            p: 3,
+            borderRadius: 2,
+            outline: 'none',
+          }}>
+            <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
+              Crop your photo
+            </Typography>
+            <Box sx={{ position: 'relative', width: ovalFrame.width, height: ovalFrame.height, bgcolor: '#222', mx: 'auto', textAlign: 'center' }}>
+              {selectedImage && (
+                <Cropper
+                  image={selectedImage}
+                  crop={crop}
+                  zoom={cropZoom}
+                  aspect={ovalFrame.width / ovalFrame.height}
+                  cropSize={ovalFrame}
+                  onCropChange={setCrop}
+                  onZoomChange={setCropZoom}
+                  onCropComplete={onCropComplete}
+                  showGrid={false}
+                  restrictPosition={false}
+                />
+              )}
+              {/* Oval outline overlay */}
+              <Box
+                sx={{
+                  pointerEvents: 'none',
+                  position: 'absolute',
+                  top: 0,
+                  left: 0,
+                  width: ovalFrame.width,
+                  height: ovalFrame.height,
+                  borderRadius: '50%',
+                  border: '3px solid #fff',
+                  boxSizing: 'border-box',
+                  zIndex: 10,
+                  mx: 'auto'
+                }}
+              />
+            </Box>
+            <Box sx={{ mt: 2 }}>
+              <Typography gutterBottom>Zoom</Typography>
+              <Slider
+                value={cropZoom}
+                min={1}
+                max={3}
+                step={0.01}
+                onChange={(_, value) => setCropZoom(value)}
+              />
+            </Box>
+            <Stack direction="row" spacing={2} justifyContent="flex-end" sx={{ mt: 2 }}>
+              <Button variant="outlined" color="secondary" onClick={() => setCropModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button variant="contained" color="primary" onClick={handleCropSave}>
+                Crop & Save
+              </Button>
+            </Stack>
+          </Box>
+        </Modal>
       </Box>
     </Box>
   );
