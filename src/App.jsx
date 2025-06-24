@@ -8,7 +8,7 @@ import html2canvas from 'html2canvas';
 import Cropper from 'react-easy-crop';
 import { getCroppedImg } from './utils/cropImage';
 
-const ovalFrame = { width: 170, height: 210 }; // Match your template oval
+//const circleFrame = { width: 170, height: 170 }; // Use square dimensions for perfect circle
 
 function App() {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -95,37 +95,110 @@ function App() {
   // Crop and save
   const handleCropSave = async () => {
     if (!selectedImage || !croppedAreaPixels) return;
-    const croppedUrl = await getCroppedImg(selectedImage, croppedAreaPixels, ovalFrame.width, ovalFrame.height);
+    const croppedUrl = await getCroppedImg(selectedImage, croppedAreaPixels, OVERLAY_SIZE, OVERLAY_SIZE);
     setCroppedImage(croppedUrl);
     setCropModalOpen(false);
   };
+  // Adjust these values to fine-tune the overlay position in the download
+  const OVERLAY_TOP_PERCENT = 12;  // Matches preview position
+  const OVERLAY_LEFT_PERCENT = 61; // Matches preview position
+  const OVERLAY_SIZE = 380;        // Size for both width and height to maintain circle
 
   const downloadCertificate = async () => {
-    if (certificateRef.current) {
-      const canvas = await html2canvas(certificateRef.current, {
-        scale: 2,
-        backgroundColor: null,
-      });
-      const link = document.createElement('a');
-      link.download = 'nconnect-certificate.png';
-      link.href = canvas.toDataURL('image/png');
-      link.click();
+    // Create a temporary div for rendering
+    const tempDiv = document.createElement('div');
+    tempDiv.style.width = '1300px';
+    tempDiv.style.height = '1300px';
+    tempDiv.style.position = 'fixed';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
+
+    // Create and load the background image
+    const bgImg = document.createElement('img');
+    bgImg.src = '/nconnect.png';
+    bgImg.style.width = '100%';
+    bgImg.style.height = '100%';
+    bgImg.style.objectFit = 'contain';
+    tempDiv.appendChild(bgImg);
+
+    if (croppedImage) {
+      // Create the overlay container
+      const overlayDiv = document.createElement('div');
+      overlayDiv.style.position = 'absolute';
+      overlayDiv.style.top = `${OVERLAY_TOP_PERCENT}%`;
+      overlayDiv.style.left = `${OVERLAY_LEFT_PERCENT}%`;
+      overlayDiv.style.width = `${OVERLAY_SIZE}px`;
+      overlayDiv.style.height = `${OVERLAY_SIZE}px`;
+      // overlayDiv.style.transform = 'translateX(-50%)';
+      // overlayDiv.style.borderRadius = '50%';
+      overlayDiv.style.overflow = 'hidden';
+      overlayDiv.style.backgroundColor = 'transparent';
+
+      // Create and add the overlay image
+      const overlayImg = document.createElement('img');
+      overlayImg.src = croppedImage;
+      overlayImg.style.width = '100%';
+      overlayImg.style.height = '100%';
+      overlayImg.style.objectFit = 'cover';
+      overlayImg.style.borderRadius = '50%';
+      overlayDiv.appendChild(overlayImg);
+      tempDiv.appendChild(overlayDiv);
     }
+
+    // Wait for images to load
+    await Promise.all([
+      new Promise(resolve => bgImg.onload = resolve),
+      croppedImage ? new Promise(resolve => {
+        const img = tempDiv.querySelector('img:last-child');
+        if (img.complete) resolve();
+        else img.onload = resolve;
+      }) : Promise.resolve()
+    ]);
+
+    // Capture the image
+    const canvas = await html2canvas(tempDiv, {
+      width: 1300,
+      height: 1300,
+      scale: 1,
+      backgroundColor: null,
+    });
+
+    // Create download link
+    const link = document.createElement('a');
+    link.download = 'nconnect-certificate.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+
+    // Clean up
+    document.body.removeChild(tempDiv);
   };
 
   return (
     <Box sx={{
       width: '100%',
-      margin: '0 auto',
-      height: '100vh',
+      minHeight: '100vh',
       backgroundColor: '#0A0A1E',
       color: 'white',
-      alignItems: 'center',
+      display: 'flex',
+      justifyContent: 'center',  // Center horizontally
       overflow: 'hidden',
       position: 'relative',
     }}>
-      <Box sx={{ position: 'relative', zIndex: 1,display: 'flex', justifyContent:'center',alignItems:'center' }}>
-        <Grid container columns={12} sx={{ height: '100vh', margin: '0 auto' }}>
+      <Box sx={{
+        position: 'relative',
+        zIndex: 1,
+        width: '100%',
+        maxWidth: '1300px', // Set max-width
+        margin: '0 auto',
+        height: '100vh',
+        display: 'flex',
+        flexDirection: 'column'
+      }}>
+        <Grid container columns={12} sx={{
+          height: '100%',
+          margin: '0 auto',
+          width: '100%'
+        }}>
           {/* Left Column */}
           <Grid sx={{
             gridColumn: { xs: 'span 12', md: 'span 6' },
@@ -302,7 +375,7 @@ function App() {
               onMouseDown={handleMouseDown}
               sx={{
                 width: '100%',
-                height: 'calc(100vh - 120px)',
+                height: '100%', // Changed from calc
                 overflow: 'hidden',
                 display: 'flex',
                 alignItems: 'center',
@@ -310,8 +383,10 @@ function App() {
                 position: 'relative',
                 backgroundColor: 'rgba(0,0,0,0.2)',
                 borderRadius: '12px',
-                maxWidth: '90%',
-                userSelect: 'none'
+                maxWidth: '1300px',
+                margin: '0 auto',
+                userSelect: 'none',
+                padding: '20px' // Added padding
               }}
             >
               <Box
@@ -325,25 +400,29 @@ function App() {
                   '&:active': {
                     cursor: 'grabbing'
                   },
-                  width: 'fit-content',
-                  height: 'fit-content',
+                  width: '100%',
+                  height: '100%', // Changed from auto
+                  maxWidth: '1300px',
+                  display: 'flex', // Added
+                  alignItems: 'center', // Added
+                  justifyContent: 'center', // Added
                   '& img.background': {
                     width: '100%',
                     height: '100%',
-                    maxWidth: '100%',
-                    maxHeight: 'calc(100vh - 120px)',
-                    display: 'block',
-                    objectFit: 'contain'
+                    objectFit: 'contain',
+                    maxWidth: '1300px', // Added max-width
+                    maxHeight: '1300px' // Added max-height
                   },
                   '& .photo-overlay': {
                     position: 'absolute',
-                    top: '30px',
-                    left: '340px',
-                    width: `${ovalFrame.width}px`,
-                    height: `${ovalFrame.height}px`,
+                    top: '11%',
+                    left: '72%',
+                    width: '170px', // Fixed width
+                    height: '170px', // Fixed height
+                    transform: 'translateX(-50%)',
                     borderRadius: '50%',
                     overflow: 'hidden',
-                    backgroundColor: '#fff',
+                    backgroundColor: 'transparent',
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
@@ -356,6 +435,7 @@ function App() {
                   className="background"
                   draggable="false"
                   onDragStart={(e) => e.preventDefault()}
+                  style={{ maxWidth: '100%', maxHeight: '100%' }} // Added style
                 />
                 {croppedImage && (
                   <div className="photo-overlay">
@@ -384,7 +464,7 @@ function App() {
             top: '50%',
             left: '50%',
             transform: 'translate(-50%, -50%)',
-            width: ovalFrame.width + 40,
+            width: OVERLAY_SIZE + 40,
             bgcolor: 'background.paper',
             boxShadow: 24,
             p: 3,
@@ -394,14 +474,13 @@ function App() {
             <Typography variant="h6" sx={{ mb: 2, textAlign: 'center' }}>
               Crop your photo
             </Typography>
-            <Box sx={{ position: 'relative', width: ovalFrame.width, height: ovalFrame.height, bgcolor: '#222', mx: 'auto', textAlign: 'center' }}>
+            <Box sx={{ position: 'relative', width: OVERLAY_SIZE, height: OVERLAY_SIZE, bgcolor: '#222', mx: 'auto', textAlign: 'center' }}>
               {selectedImage && (
                 <Cropper
                   image={selectedImage}
                   crop={crop}
-                  zoom={cropZoom}
-                  aspect={ovalFrame.width / ovalFrame.height}
-                  cropSize={ovalFrame}
+                  zoom={cropZoom} aspect={1}
+                  cropSize={{ width: OVERLAY_SIZE, height: OVERLAY_SIZE }}
                   onCropChange={setCrop}
                   onZoomChange={setCropZoom}
                   onCropComplete={onCropComplete}
@@ -415,9 +494,8 @@ function App() {
                   pointerEvents: 'none',
                   position: 'absolute',
                   top: 0,
-                  left: 0,
-                  width: ovalFrame.width,
-                  height: ovalFrame.height,
+                  left: 0, width: OVERLAY_SIZE,
+                  height: OVERLAY_SIZE,
                   borderRadius: '50%',
                   border: '3px solid #fff',
                   boxSizing: 'border-box',

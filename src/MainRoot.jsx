@@ -20,8 +20,8 @@ export default function Root() {
 
     return (
         <>
-            {isMobile ? <Mobile /> : <App />}            
-            
+            {isMobile ? <Mobile /> : <App />}
+
             <Dialog
                 fullScreen
                 open={showWelcome}
@@ -55,7 +55,7 @@ export default function Root() {
                             mb: 3,
                             fontSize: { xs: '2rem', sm: '3rem' }
                         }}>
-                            🎉 Welcome to NammaQA Nconnect!
+                            🎉 Celebrate your participation by sharing with your network!
                         </Typography>
                         <Typography variant="h5" sx={{
                             color: 'rgba(255, 255, 255, 0.9)',
@@ -65,7 +65,7 @@ export default function Root() {
                             maxWidth: '800px',
                             mx: 'auto'
                         }}>
-                            Thank you for being part of this amazing event! Let's celebrate your participation by creating your personalized certificate of attendance.
+                            Thank you for being part of this amazing event! Let's celebrate your participation by sharing with your network.
                         </Typography>
                     </Box>
                     <Box
